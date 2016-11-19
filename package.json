@@ -1,9 +1,9 @@
 {
-  "name": "material-start",
+  "name": "the-weather",
   "private": true,
-  "version": "0.0.3",
-  "description": "A ES6 Tutorial project for AngularJS Material Start",
-  "repository": "https://github.com/angular/material-start",
+  "version": "0.0.1",
+  "description": "Some weather task",
+  "repository": "https://github.com/havster09/haven-weather.git",
   "license": "MIT",
   "jspm": {
     "directories": {
