@@ -1,5 +1,3 @@
-"use strict";
-
 System.config({
   defaultJSExtensions: true,
   transpiler: "traceur",

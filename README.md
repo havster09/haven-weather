@@ -2,9 +2,13 @@
 
 This app uses:
 
+*  Angular
 *  Angular Material
-*  D3
 *  Angular Components
+*  ngcomponentrouter
+*  D3
+*  Cucumber
+*  Grunt
 
 
 ##### Getting Started
@@ -15,7 +19,7 @@ AMD, and globals).
 
 ###### Prerequisites
 
-This project assumes that you have NodeJS and any relevant development tools already
+This project assumes that you have NodeJS, Grunt CLI, JSPM and any relevant development tools already
 installed.
  
 ###### Getting Started
@@ -26,6 +30,8 @@ Clone this repository and execute the following commands in a terminal:
 * `npm install jspm live-server -g`
 * `bower install`
 * `live-server --open=app`
+* `webdriver-manager start`
+* `grunt protractor`
 
 > **Note:** You should use a web-server (like live-server above) to view your app in the browser. Open
   the dev console to see any warnings and browse the elements.
