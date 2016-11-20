@@ -4,6 +4,7 @@
   "globals": {
     "d3":true,
     "System":true,
+    "setTimeout":true,
     "document":true,
     "window":true,
     "self":true,

@@ -6,6 +6,8 @@ class D3GlobeChartController {
     constructor(GlobeDataService) {
         let model = this;
         model.selectedCountry = 'Australia';
+        model.animateFill = {};
+        model.animateStroke = {};
 
         model.weatherTooltip = d3.select(".globe").append("div")
             .attr("class", "tooltip-weather")
@@ -15,15 +17,11 @@ class D3GlobeChartController {
             model.cities = cities;
         });
 
-        GlobeDataService.loadAllCities().then((data) => {
-            model.data = data;
-        });
+        const time = Date.now();
+        const rotate = [0, 0];
+        const velocity = [0.015, -0];
 
-        var time = Date.now();
-        var rotate = [0, 0];
-        var velocity = [0.015, -0];
-
-        var color = d3.scale.linear()
+        const color = d3.scale.linear()
             .domain([0, 10])
             .range(colorbrewer.Greys[9]);
 
@@ -31,7 +29,7 @@ class D3GlobeChartController {
             projection, path,
             svg, features, graticule,
             mapJson = 'assets/topojson/countries-and-states.json',
-            states, stateSet, countries, countrySet, set, dynamicColor, weatherBubbles;
+            states, stateSet, countries, countrySet, set, weatherBubbles;
 
         projection = d3.geo.orthographic()
             .translate([width / 2, height / 2])
@@ -75,13 +73,13 @@ class D3GlobeChartController {
                 .selectAll("circle")
                 .data(model.cities)
                 .enter().append("circle")
-                .attr('cx', function (d) {
+                .attr('cx', (d) => {
                     return projection([d.lon, d.lat])[0];
                 })
-                .attr('cy', function (d) {
+                .attr('cy', (d) => {
                     return projection([d.lon, d.lat])[1] - 1.5;
                 })
-                .attr("r", function (d) {
+                .attr("r", (d) => {
                     return 0;
                 })
                 .on("mouseover", function (d) {
@@ -89,8 +87,7 @@ class D3GlobeChartController {
                     model.weatherTooltip.transition()
                         .duration(500)
                         .style("opacity", 1);
-                    let tip = "";
-                    tip = `<h3>${d.name} Weather</h3>
+                    const tip = `<h3>${d.name} Weather</h3>
                             <p class="icon"><img width="50" src="${d.icon_url}" alt="${d.conditions}"></p>
                             <ul>
                                 <li><strong>Conditions:</strong>${d.conditions}</li>
@@ -114,7 +111,7 @@ class D3GlobeChartController {
                 .duration(2000)
                 .ease('elastic')
                 .attr("r", (d) => {
-                    return 5;
+                    return 8;
                 });
         });
 
@@ -124,10 +121,10 @@ class D3GlobeChartController {
                 .enter()
                 .append('g')
                 .attr('class', className)
-                .attr('data-name', function (d) {
+                .attr('data-name', (d) => {
                     return d.properties.name;
                 })
-                .attr('data-id', function (d) {
+                .attr('data-id', (d) => {
                     return d.id;
                 });
 
@@ -141,13 +138,10 @@ class D3GlobeChartController {
             set.append('path')
                 .attr('class', 'overlay')
                 .attr('d', path)
-                .attr('style', function (d) {
-                    if (model.data[d.id]) {
-                        return 'fill-opacity: ' + (model.data[d.id] / 100);
-                    }
+                .attr('style', (d) => {
+                    return 'fill-opacity: ' + 0.5;
                 })
                 .on("mouseover", function () {
-                    dynamicColor = this.style.fill;
                     d3.select(this)
                         .style({
                             "fill": "#000"
@@ -163,6 +157,13 @@ class D3GlobeChartController {
                 })
                 .on('click', function (d) {
                     model.selectedCountry = d.properties.name;
+
+                    if(d.properties.name !== model.selectedCountry) {
+                        d3.select(this)
+                            .style({
+                                "fill": "#FFC107"
+                            });
+                    }
 
                     d3.select('.globe-wrapper .info').html(`<h4>${d.properties.name}</h4>`);
 
@@ -187,20 +188,23 @@ class D3GlobeChartController {
                                 return (d.properties.name !== clickedCountry)?"#FFC107":"#000";
                             }
                         });
-                });
+                })
+                .call(animateFill, 5000)
+                .call(animateStroke, 5000);
+
             return set;
         }
 
         function rotateToFocusOn(x) {
-            var coords = d3.geo.centroid(x);
+            const coords = d3.geo.centroid(x);
             coords[0] = -coords[0];
             coords[1] = -coords[1];
 
             d3.transition()
                 .duration(1000)
-                .tween('rotate', function () {
-                    var r = d3.interpolate(projection.rotate(), coords);
-                    return function (t) {
+                .tween('rotate', () => {
+                    const r = d3.interpolate(projection.rotate(), coords);
+                    return (t) => {
                         projection.rotate(r(t));
                         svg.selectAll('path').attr('d', path);
                     };
@@ -220,9 +224,41 @@ class D3GlobeChartController {
                 .ease("elastic")
                 .attr({
                     "r": (d) => {
-                        return 5;
+                        return 8;
                     }
                 });
+        }
+
+        function animateFill(path, duration) {
+            d3.select(model.animateFill).transition()
+                .duration(duration)
+                .tween("style:fill-opacity", function() {
+                    const i = d3.interpolateString(".5", "1");
+                    return function(t) { path.style("fill-opacity", i(t)); };
+                })
+                .transition()
+                .tween("style:fill-opacity", function() {
+                    const i = d3.interpolateString("1", ".5");
+                    return function(t) { path.style("fill-opacity", i(t)); };
+                });
+
+            setTimeout(function() { animateFill(path, duration); }, (Math.random() + 2) * duration);
+        }
+
+        function animateStroke(path, duration) {
+            d3.select(model.animateStroke).transition()
+                .duration(duration)
+                .tween("style:stroke-width", function() {
+                    const i = d3.interpolateString("1px", "1.5px");
+                    return function(t) { path.style("stroke-width", i(t)); };
+                })
+                .transition()
+                .tween("style:stroke-width", function() {
+                    const i = d3.interpolateString("1.5px", "1px");
+                    return function(t) { path.style("stroke-width", i(t)); };
+                });
+
+            setTimeout(function() { animateStroke(path, duration); }, (Math.random() + 2) * duration);
         }
     }
 }
