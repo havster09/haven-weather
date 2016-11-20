@@ -1,6 +1,7 @@
 "use strict";
 
 import * as d3 from "d3";
+import * as topojson from "../../../../js/topojson.min";
 
 class D3GlobeChartController {
     constructor(GlobeDataService) {
@@ -25,7 +26,7 @@ class D3GlobeChartController {
             .domain([0, 10])
             .range(colorbrewer.Greys[9]);
 
-        var width = 700, height = width,
+        var width = 700, height = 700,
             projection, path,
             svg, features, graticule,
             mapJson = 'assets/topojson/countries-and-states.json',
