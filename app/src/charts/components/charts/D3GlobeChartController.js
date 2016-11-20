@@ -83,6 +83,9 @@ class D3GlobeChartController {
                 .attr("r", (d) => {
                     return 0;
                 })
+                .attr("class", (d,i) => {
+                    return `weather-bubble-${d.name}`;
+                })
                 .on("mouseover", function (d) {
                     const circleId = d.id;
                     model.weatherTooltip.transition()

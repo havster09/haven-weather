@@ -9,10 +9,25 @@ module.exports = function() {
 
     });
 
-    this.Then(/^the globe chart is rendered$/, function (callback) {
+    this.Given(/^the globe chart is rendered$/, function (callback) {
         var EC = protractor.ExpectedConditions;
         browser.wait(EC.visibilityOf($('.globe')), 5000).then(function() {
            callback();
         });
     });
+
+    this.When(/^I hover over a circle$/, function (callback) {
+        browser.actions().mouseMove($('.weather-bubble-Sydney')).perform().then(function() {
+            callback();
+        });
+    });
+
+    this.Then(/^^the tooltip is rendered$/, function (callback) {
+        var EC = protractor.ExpectedConditions;
+        browser.wait(EC.visibilityOf($('.tooltip-weather')), 5000).then(function() {
+            callback();
+        });
+    });
+
+
 };
